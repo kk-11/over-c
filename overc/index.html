@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">	
+
+
+	<link rel="stylesheet" href="style.css">
+
+												<!-- dependencies -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+	<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>	
+	
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.12.0/d3.min.js"></script>
+
+
+	<script type="text/javascript" src="d3pie.min.js"></script>
+	
+	<link rel="shortcut icon" href="favicon.ico"/>
+
+	<title>Over-C | Challenge</title>
+</head>
+<body style="visibility: hidden;" onload="js_Load()">
+<div id="particle"></div>
+<img src="Logo.png"  title="Hire Me" style="position: absolute;top: 20px; right:50px">
+  	
+		<div id="app" style="position:absolute; top: 50px;" v-cloak>		
+
+			<div id="myNav" class="overlay">	
+  				<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+
+  						<!-- overlay content for reading full user info -->
+				   <div class="overlay-content">
+				   <div v-model="readUserData" >Full User Name: {{ readUserData.firstName }} {{ readUserData.secondName }}</div><br>
+				   <div v-model="readUserData" >Email: {{ readUserData.email }}</div><br>
+				   <div v-model="readUserData" >User ID: {{ readUserData.id }}</div>
+				  </div>
+				</div>
+		
+		
+						<!--  user list -->
+			<ul style="list-style-type: none;" class="col-md-12" >									
+ 								
+ 								<!-- MAIN (FOR) loop for users && options -->
+
+				    	<li v-for="users in users" style="color: #ecf0f1; padding: 10px; font-family: courier"><img src="userIcon.png" v-bind:class="{ fa: users.active, 'fa2': !users.active }" 
+				    	style="margin: 10px" >{{ users.firstName }}	<br>   						
+				    			
+
+				    				<!-- login/logout buttons  -->
+
+<button v-on:click="users.active = !users.active;addOne()" v-if='users.active' class="btn width-150px" style="color: black">Logout</button>
+<button v-on:click="users.active = !users.active;addOne()" v-else='users.active' class="btn width-150px" style="color: black" >Login</button>
+
+
+									<!-- show EDIT user button  -->
+
+	
+<button type="button" class="btn btn-info" data-toggle="modal" data-target="#editDialog" v-on:click="showEditUser(users)">Edit User</button>
+	
+								
+									<!-- show read user, opens NAV	 -->
+
+<button v-on:click="showReadUser(users)"  onclick='openNav()' class="btn btn-info">Read More</button>	
+
+
+									<!-- delete user button  -->
+
+<button v-on:click="deleteUser(users);showAddUser();addOne()" class="btn btn-danger" >Delete</button>
+
+		  		</li>
+			</ul>
+
+
+									<!-- edit user popup box -->
+
+<div class="modal fade" id="editDialog" role="dialog" style="font-family: courier; text-align: center;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>                
+                	<h4 class="modal-title"  style="color: black; position: center">Edit User Details</h4>
+           	</div>
+                <div class="modal-body" v-cloak>
+                    <form id="contact_form" style="color: black" >
+                       <div >	<div v-model="holder"  >Update User First Name:</div>
+								<input type="text" v-model='holder.firstName' placeholder="First Name"> <br>
+								<div v-model="holder"  >Update User Last Name:</div>
+								<input type="text" v-model='holder.secondName' placeholder="Last Name"> <br>
+								<div v-model="holder"  >Update User Email</div>
+								<input type="text" v-model='holder.email' placeholder="Email">  <br>
+								<div v-model="holder"  >Update User ID:</div>
+								<input type="text" v-model='holder.id' placeholder="Enter New User ID"
+								onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;">
+                       		</div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="button" value="Submit" id="submitForm" class="btn btn-default" data-dismiss="modal">
+                    
+                </div>
+        </div>
+    </div>
+</div>								
+<div v-show="showUser" style="position: absolute; left: 150px; font-family: courier; content: block">	
+<img src="adduser.png">	
+
+									    	<!-- add new user button  -->
+
+
+<button type="button" class="btn" data-toggle="modal" data-target="#contact_dialog" >Add New User</button>
+</div> 	     
+<!-- the div that represents the modal dialog -->
+<div class="modal fade" id="contact_dialog" role="dialog" style="font-family: courier; text-align: center;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                
+                <h4 class="modal-title">Enter New User Details</h4>
+           		</div>
+                <span class="modal-body">
+                    <form id="contact_form" v-cloak>
+                       
+                       			<input type="text" v-model='users.firstName' placeholder="First Name"> <br>
+								<input type="text" v-model='users.secondName' placeholder="Last Name"> <br>
+								<input type="text" v-model='users.email' placeholder="Email">  <br>
+								<input type="text" v-model='users.id' placeholder="ID"
+										onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;">
+									<br>
+                    </form>
+                </span>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input v-on:click="addUser();showAddUser();addOne()" type="button" value="Submit" id="submitForm" class="btn btn-default" data-dismiss="modal">
+                    
+                </div>
+            </div>
+        </div>
+    </div>	    
+</div>
+					<!-- pie chart -->
+<div id="pieChart"  style="position: fixed; top: 80px; right: 0px;"></div>
+</div>  
+</body>
+
+
+<script src=" https://cdn.jsdelivr.net/npm/vue"></script>
+	<script>
+		var app = new Vue({
+			el: '#app',
+			
+			data: {	
+				userCount: 0,
+				totalUsers: 0,				
+				showUser: true,
+				showInfo: false,
+				showEdit: false,
+				selected: '',  				
+				pieRefresher: 0,
+				holder: '',				
+				
+				pie:'',				
+				readUserData: '',
+			
+		
+				users: [
+					{
+					firstName: 'Killian',
+					secondName: 'de Buitlier',
+					email: 'killian.debuitleir@gmail.com',
+					id: '0877402031',
+					active: true},
+					{
+				    firstName: 'John',
+					secondName: 'Smith',
+					email: 'johnSmith@gmail.com',
+					id: '111111111',
+					active: true},
+					{
+				    firstName: 'Jane',
+					secondName: 'Doe',
+					email: 'janeDoe@gmail.com',
+					id: '222222222',
+					active: true},
+					{
+				    firstName: 'Andrew',
+					secondName: 'Jackson',
+					email: 'andrewJackson@gmail.com',
+					id: '333333333',
+					active: true},
+					{
+				    firstName: 'Peter',
+					secondName: 'Smith',
+					email: 'peterSmith@gmail.com',
+					id: '444444444',
+					active: true}
+
+				] 
+			},
+			
+ 			mounted: function() {
+			    this.todo();
+			    this.usersActive()
+			    this.totalUserCount();
+			    this.d3test();
+			    
+			  },
+ 			 			
+ 			methods: {
+ 			addUser: function() {
+	     		this.users.push({
+	      		firstName: this.users.firstName,
+	       		secondName: this.users.secondName,
+	       		email: this.users.email,
+	       		id: this.users.id,
+	       		active: true,
+				})
+			},
+
+			deleteUser: function(users) {
+	     		this.users.splice(this.users.indexOf(users), 1)
+    		},
+    		// this determines whether the add new user button is shown
+    		showAddUser: function() {
+	     		if(this.users.length > 9){
+	     			this.showUser = false;
+	     		}else{this.showUser = true}			
+    		},
+    		// this determines whether the edit user button is shown
+    		showEditUser: function(users) {    			
+    			this.holder = this.users[this.users.indexOf(users)];
+    		},
+
+    		showReadUser: function(users) {    				
+    				this.readUserData = this.users[this.users.indexOf(users)];
+    				    				
+    		},
+    		getSelectedValue: function(users, selected){
+    			if(this.selected.value="1"){
+    				this.users.splice(this.users.indexOf(users), 1)}
+    				 else if (this.selected.value='2') {
+    					this.showEdit = true}
+    					else if (this.selected.value= '3') {
+    						this.showInfo = true}
+    		},
+
+    		todo: function(){  
+			    this.intervalid1 = setInterval(() => {
+			        this.userCount = 0;
+			        this.usersActive();
+			        this.totalUserCount();
+			      	
+			        // ensure that the model is only redrawn if the
+			        // users have changed
+
+			      	if (this.pieRefresher !== 0) {
+			        this.updatePie();
+			      	this.d3test();
+			      	this.pieRefresher = 0;
+			         }else{}
+			        }, 5000);
+			},
+
+			addOne: function(){
+				this.pieRefresher++;
+			},
+
+    		usersActive: function(){
+    			for(i=0;i<this.users.length;i++){
+    				if(this.users[i].active == true){
+    					this.userCount++;
+    				}	
+    			}
+    			return this.userCount;    
+    				this.userCount=0;	    			
+    		},
+    		totalUserCount: function(){
+    			this.totalUsers = this.users.length;    					
+    			
+    			
+    		},
+    	
+    		d3test: function(){    			
+    			this.pie = new d3pie("pieChart", {
+				"header": {
+				"title": {
+						"text": " User Activity",
+
+						"fontSize": 34,
+						"font": "courier",
+						"color": "#ecf0f1"
+					},
+					
+					"location": "pie-center",
+					"titleSubtitlePadding": 10
+				},
+				
+				"size": {
+					"canvasWidth": 590,
+					"pieInnerRadius": "85%",
+					"pieOuterRadius": "76%"
+				},
+				"data": {
+					"sortOrder": "value-asc",
+					"content": [
+						{
+							"label": "Online",
+							"value": this.userCount,
+							"color": "#ecf0f1"
+						},
+						{
+							"label": "Offline",
+							"value": this.totalUsers-this.userCount,
+							"color": "#220000"
+						}
+					]
+				},
+				"labels": {
+					"outer": {
+						"format": "label-value1",
+						"pieDistance": 20
+					},
+					"inner": {
+						"format": "none"
+					},
+					"mainLabel": {
+						"fontSize": 11,
+						"color": "#ecf0f1"	
+					},
+					
+					"value": {
+						"color": "#ecf0f1",
+						"fontSize": 11
+					},
+					"lines": {
+						"enabled": true,
+						"color": "#777777"
+					},
+					"truncation": {
+						"enabled": true
+					}
+				},
+				"effects": {
+					"pullOutSegmentOnClick": {
+						"effect": "back",
+						"speed": 1000,
+						"size": 8
+					}
+				},
+				"misc": {
+					"colors": {
+						"segmentStroke": "#000000"
+					}
+				}
+			});
+    		},
+
+    		updatePie: function(){			    
+			    this.pie.destroy();			    
+			  }	
+		}
+	})
+	</script>
+<script type="text/javascript" src="overcscripts.js"></script>
+</html>
+
+ 
